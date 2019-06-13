@@ -11,9 +11,10 @@ void menu()
 int main(void)
 {
     UdpClient client("47.101.192.120", 9090); // 这里我把服务器的地址和端口号写死了
-    std::cout << "请输入您的姓名：";
+    
+	// 1.客户端启动，服务器记录客户
+	std::cout << "请输入您的姓名：";
     std::string start("__client__start ");
-
     std::string name;
     std::cin >> name;
 
@@ -35,12 +36,12 @@ int main(void)
 
         if (option == 'a')
         {
-            msg = "List All User";
+            msg = "__client__list ";
             client.SendTo(msg);
 
             // 看完列表后，选择要发送的用户
             std::cout << "请选择要发送的消息的用户：";
-            std::string ans("sendmessage ");
+            std::string ans("__client__message ");
             std::string username;
             std::cin >> username;
 
@@ -58,9 +59,7 @@ int main(void)
         {
             // 用户退出
             msg = "__client_quit ";
-            msg += name;
             client.SendTo(msg);
-            sleep(2);
             return 1;
         }
     }
