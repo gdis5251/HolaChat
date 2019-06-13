@@ -1,12 +1,12 @@
 .PHONY:all
-all:HelloChat_Client HelloChat_Server
+all:Chat_Client Chat_Server
 
-HelloChat_Client:HelloChat_client.cpp
+Chat_Client:Chat_Client.cpp
 	g++ -o $@ $^ -std=c++11 -g
 
-HelloChat_Server:HelloChat_server.cpp
+Chat_Server:Chat_Server.cpp
 	g++ -o $@ $^ -std=c++11 -g
 
 .PHONY:clean
 clean:
-	rm HelloChat_Client HelloChat_Server
+	rm Chat_Client Chat_Server

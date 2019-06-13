@@ -41,8 +41,6 @@ public:
                 perror("RecvFrom");
                 continue;
             }
-            // 打印接收到的信息
-            printf("[ip: %s --- port: %d]  %s\n", peer_ip.c_str(), peer_port, req.c_str());
 
             // 2. 处理请求
             std::string resp;
