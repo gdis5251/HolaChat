@@ -39,6 +39,10 @@ int main(void)
             msg = "__client__list ";
             client.SendTo(msg);
 
+			std::string resp;
+			client.RecvFrom(resp);
+			std::cout << resp.c_str() << std::endl;
+
             // 看完列表后，选择要发送的用户
             std::cout << "请选择要发送的消息的用户：";
             std::string ans("__client__message ");
