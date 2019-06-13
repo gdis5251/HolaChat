@@ -19,6 +19,7 @@ void AddUser(const std::string& name, const std::string& ip, uint16_t port, Addr
 	while (bit != addresslist.book.end())
 	{
 		std::cout << bit->first << std::endl;
+        bit++;
 	}
 }
 
@@ -27,14 +28,18 @@ void DeleteUser(const std::string& name, AddressList& addresslist)
     addresslist.book.erase(addresslist.book.find(name));
 }
 
-void List(AddressList& addresslist)
+void List(AddressList& addresslist, std::string& resp)
 {
 	// 测试多个用户是否都被存进通讯录中
 	auto bit = addresslist.book.begin();
 	while (bit != addresslist.book.end())
 	{
-		std::cout << bit->first << std::endl;
+        resp += bit->first;
+        resp += " ";
+        bit++;
 	}
+
+    std::cout << resp.c_str() << std::endl;
 }
 
 int main(void)
@@ -57,6 +62,8 @@ int main(void)
 		{
 			std::cout << "Add User" << std::endl;
 			AddUser(name, ip, port, addresslist);
+
+            resp = "Add User Success!";
 		}
 		else if (msg == "__client__quit")
 		{
@@ -66,7 +73,8 @@ int main(void)
 		else if (msg == "__client__list")
 		{
 			std::cout << "List All User" << std::endl;
-			List(addresslist);
+
+			List(addresslist, resp);
 		}
 
 	}
