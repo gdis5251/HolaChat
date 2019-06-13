@@ -5,7 +5,8 @@
 
 // 一个可以接收函数指针和仿函数的通用的东西
 typedef std::function<void(const std::string&, std::string&, 
-                           const std::string&, uint16_t)> Handler;
+                           const std::string&, uint16_t,
+                           std::string&, uint16_t*, int*, std::string&)> Handler;
 
 class UdpServer
 {
@@ -43,9 +44,18 @@ public:
             }
 
             // 2. 处理请求
+            std::string send_ip;
+            uint16_t send_port;
+            int is_send = 0;
+            std::string msg;
             std::string resp;
-            handler(req, resp, peer_ip, peer_port);
+            handler(req, resp, peer_ip, peer_port,
+                    send_ip, &send_port, &is_send, msg);
 
+            if (is_send == 1)
+            {
+                sock_.SendTo(msg, send_ip, send_port);
+            }
             // 3. 响应请求
             sock_.SendTo(resp, peer_ip, peer_port);
         }

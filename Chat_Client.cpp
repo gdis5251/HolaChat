@@ -10,13 +10,24 @@ void menu()
     std::cout << "*********************************" << std::endl;
 }
 
-void RecvMessage(UdpClient& client, std::string& resp)
+struct ThreadArgv
+{
+    ThreadArgv()
+        :client_("47.101.192.120", 9090)
+    {}
+    UdpClient client_;
+    std::string resp_;
+};
+
+void* RecvMessage(void *argv)
 {
     while (true)
     {
-        client.RecvFrom(resp);
-        std::cout << resp.c_str() << std::endl;
+        (*(ThreadArgv*)argv).client_.RecvFrom((*(ThreadArgv*)argv).resp_);
+        std::cout << (*(ThreadArgv*)argv).resp_.c_str() << std::endl;
     }
+
+    return nullptr;
 }
 
 int main(void)
@@ -35,9 +46,16 @@ int main(void)
     // 先给服务器发送一句话，让服务器记录下来该用户
     client.SendTo(start);
 
-    std::thread recv(RecvMessage, client, resp);
-    recv.join();
+    // 这里弄一个线程专门去接收消息
+    // std::thread recv(RecvMessage, client, resp);
+    // recv.join();
+    
+    ThreadArgv argv;
+    argv.client_ = client;
+    argv.resp_ = resp;
 
+    pthread_t tid;
+    int ret = pthread_create(&tid, nullptr, RecvMessage, (void*)&argv);
     while(true)
     {
         menu();
@@ -54,13 +72,6 @@ int main(void)
         {
             msg = "__client__list ";
             client.SendTo(msg);
-            client.RecvFrom(resp);
-
-            std::cout << resp.c_str() << std::endl;
-
-			std::string resp;
-			client.RecvFrom(resp);
-			std::cout << resp.c_str() << std::endl;
 
             // 看完列表后，选择要发送的用户
             std::cout << "请选择要发送的消息的用户：";
@@ -69,9 +80,9 @@ int main(void)
             std::cin >> username;
 
             std::cout << "< ";
-            fflush(stdout);
             std::string message;
-            std::cin >> message;
+            getchar();
+            std::getline(std::cin, message);
 
             ans += username;
             ans += ' ';

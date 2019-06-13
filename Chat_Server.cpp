@@ -1,30 +1,18 @@
 #include "udp_server.hpp"
 #include <vector>
 #include <map>
+#include <cstdlib>
 
 struct AddressList
 {
     // 让姓名成为 key，然后在 value 里存 ip 和 端口号
     std::map<const std::string, std::pair<const std::string, uint16_t> > book;
-
 };
 
 
 void AddUser(const std::string& name, const std::string& ip, uint16_t port, AddressList& addresslist)
 {
     addresslist.book.insert(std::make_pair(name, std::make_pair(ip, port)));
-
-	// 测试多个用户是否都被存进通讯录中
-	auto bit = addresslist.book.begin();
-	while (bit != addresslist.book.end())
-	{
-		std::cout << bit->first << std::endl;
-<<<<<<< HEAD
-        bit++;
-=======
-		bit++;
->>>>>>> aefa511018f6bbb9678eb3df6ff43ec299e5e3ad
-	}
 }
 
 void DeleteUser(const std::string& name, AddressList& addresslist)
@@ -34,22 +22,13 @@ void DeleteUser(const std::string& name, AddressList& addresslist)
 
 void List(AddressList& addresslist, std::string& resp)
 {
-	// 测试多个用户是否都被存进通讯录中
 	auto bit = addresslist.book.begin();
 	while (bit != addresslist.book.end())
 	{
-<<<<<<< HEAD
         resp += bit->first;
         resp += " ";
         bit++;
-=======
-		resp += bit->first;
-		resp += '  ';
-		bit++;
->>>>>>> aefa511018f6bbb9678eb3df6ff43ec299e5e3ad
 	}
-
-    std::cout << resp.c_str() << std::endl;
 }
 
 int main(void)
@@ -58,35 +37,53 @@ int main(void)
 
 	UdpServer server;
 
-	server.start("0", 9090, [&addresslist](const std::string & req, std::string & resp,
-		const std::string & ip, uint16_t port)
+	server.start("0", 9090, [&addresslist](const std::string& req, std::string& resp, const std::string& ip, uint16_t port,
+        std::string& send_ip, uint16_t* send_port, int* is_send, std::string& msg_)
 	{
 		// 先判断是否是程序刚启动
 		int pos = req.find(' ');
 		std::string msg = req.substr(0, pos);
 
-		std::string name = req.substr(pos + 1);
+        int pos1 = req.find(' ', pos + 1);
+		std::string name = req.substr(pos + 1, pos1 - pos - 1);
 
 		// 如果是程序刚启动，就先记录该用户信息
 		if (msg == "__client__start")
 		{
-			std::cout << "Add User" << std::endl;
 			AddUser(name, ip, port, addresslist);
-
-            resp = "Add User Success!";
 		}
 		else if (msg == "__client__quit")
 		{
-			std::cout << "Delete User" << std::endl;
 			DeleteUser(name, addresslist);
 		}
 		else if (msg == "__client__list")
 		{
-			std::cout << "List All User" << std::endl;
-
 			List(addresslist, resp);
 		}
+        else if (msg == "__client__message")
+        {
+            // 截取用户要给给发送的用户名
 
+            std::string message = req.substr(pos1 + 1);
+
+            auto ans = addresslist.book.find(name);
+
+            if (ans != addresslist.book.end())
+            {
+                // 将对方的 ip 和 端口号拿出来
+                send_ip = ans->second.first;
+                *send_port = ans->second.second;
+                *is_send = 1;
+
+                msg_ = message;
+
+                resp = "Send success!";
+            }
+            else
+            {
+                resp = "Current user does not exist!";
+            }
+        }
 	}
 	);
 	return 0;
