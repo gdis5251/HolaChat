@@ -19,7 +19,11 @@ void AddUser(const std::string& name, const std::string& ip, uint16_t port, Addr
 	while (bit != addresslist.book.end())
 	{
 		std::cout << bit->first << std::endl;
+<<<<<<< HEAD
         bit++;
+=======
+		bit++;
+>>>>>>> aefa511018f6bbb9678eb3df6ff43ec299e5e3ad
 	}
 }
 
@@ -34,9 +38,15 @@ void List(AddressList& addresslist, std::string& resp)
 	auto bit = addresslist.book.begin();
 	while (bit != addresslist.book.end())
 	{
+<<<<<<< HEAD
         resp += bit->first;
         resp += " ";
         bit++;
+=======
+		resp += bit->first;
+		resp += '  ';
+		bit++;
+>>>>>>> aefa511018f6bbb9678eb3df6ff43ec299e5e3ad
 	}
 
     std::cout << resp.c_str() << std::endl;
