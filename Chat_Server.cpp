@@ -17,7 +17,8 @@ void AddUser(const std::string& name, const std::string& ip, uint16_t port, Addr
 
 void DeleteUser(const std::string& name, AddressList& addresslist)
 {
-    addresslist.book.erase(addresslist.book.find(name));
+    auto it = addresslist.book.find(name);
+    addresslist.book.erase(it);
 }
 
 void List(AddressList& addresslist, std::string& resp)
@@ -54,7 +55,16 @@ int main(void)
 		}
 		else if (msg == "__client__quit")
 		{
+            for (const auto& e : addresslist.book)
+            {
+                if (e.second.first == ip)
+                {
+                    name = e.first;
+                }
+            }
 			DeleteUser(name, addresslist);
+
+            std::cout << "delete " << name.c_str() << std::endl;
 		}
 		else if (msg == "__client__list")
 		{
@@ -77,7 +87,7 @@ int main(void)
 
                 msg_ = message;
 
-                resp = "Send success!";
+                resp = "Sended!";
             }
             else
             {

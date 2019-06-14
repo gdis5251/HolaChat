@@ -56,6 +56,9 @@ int main(void)
 
     pthread_t tid;
     int ret = pthread_create(&tid, nullptr, RecvMessage, (void*)&argv);
+
+
+
     while(true)
     {
         menu();
@@ -92,7 +95,7 @@ int main(void)
         else if (option == 'q')
         {
             // 用户退出
-            msg = "__client_quit ";
+            msg = "__client__quit ";
             client.SendTo(msg);
             return 1;
         }
