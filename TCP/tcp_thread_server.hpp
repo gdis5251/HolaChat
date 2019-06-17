@@ -4,7 +4,7 @@
 #include <pthread.h>
 
 typedef std::function<void (const std::string& req, std::string* resp,
-                            const std::string& ip, const uint16_t port)> Handler;
+                            TcpSocket& send_sock)> Handler;
 
 #define CHECK_RET(exp) if (!(exp)) {return false;}
 
@@ -82,6 +82,10 @@ private:
             if (r == 0)
             {
                 printf("[%s : %d] 对端关闭！\n", thread_arg->ip_.c_str(), thread_arg->port_);
+
+                req += "client_quit";
+                std::string fake_resp;
+                thread_arg->handler_(req, &fake_resp, thread_arg->client_sock_);
                 thread_arg->client_sock_.Close();
                 break;
             }
@@ -90,7 +94,7 @@ private:
 
             // 2. 线程处理请求
             std::string resp;
-            thread_arg->handler_(req, &resp, thread_arg->ip_, thread_arg->port_);
+            thread_arg->handler_(req, &resp, thread_arg->client_sock_);
 
             // 3. 将响应结果发送回客户端
             thread_arg->client_sock_.Send(resp);

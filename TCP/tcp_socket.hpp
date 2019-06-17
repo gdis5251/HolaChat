@@ -148,24 +148,6 @@ public:
         return true;
     }
 
-    bool SendTo(const std::string& msg, const std::string& ip, const uint16_t port)
-    {
-        sockaddr_in peer;
-        peer.sin_family =AF_INET;
-        peer.sin_addr.s_addr = inet_addr(ip.c_str());
-        peer.sin_port = htons(port);
-
-        ssize_t ret = sendto(fd_, msg.c_str(), msg.size(), 0,
-                             (sockaddr*)&peer, sizeof(peer));
-
-        if (ret < 0)
-        {
-            perror("sendto");
-            return false;
-        }
-        return true;
-    }
-
     // 客户端来用
     bool Connect(const std::string& ip, uint16_t port)
     {

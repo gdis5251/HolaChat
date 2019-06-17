@@ -8,11 +8,11 @@ int main()
     //   并创建map用来记录用户信息
     TcpThreadServer server;
     
-    std::map<std::string, std::pair<std::string, uint16_t>> book;
+    std::map<std::string, TcpSocket> book;
 
     // 2. 启动服务器
     server.start("0", 9090, [&book](const std::string req, std::string* resp,
-                                    const std::string ip, uint16_t port)
+                                    TcpSocket& sock)
                  {
                     // 1. 截取出请求的第一个空格前的信息
                     std::stringstream ss(req);
@@ -25,7 +25,7 @@ int main()
                     {
                         std::string name;
                         ss >> name;
-                        book.insert(std::make_pair(name, std::make_pair(ip, port)));
+                        book.insert(std::make_pair(name, sock));
 
                         *resp = "Connect Success!";
                     }
@@ -42,9 +42,9 @@ int main()
                     else if (option == "client_send")
                     {
                     //      在通讯录中查找用户想要发消息的用户
-                        std::string name;
-                        ss >> name;
-                        auto it = book.find(name);
+                        std::string peer_name;
+                        ss >> peer_name;
+                        auto it = book.find(peer_name);
                     //      如果找到，给对方发消息，并返回发送成功
                         if (it != book.end())
                         {
@@ -54,8 +54,9 @@ int main()
 
                             msg = req.substr(pos + 1);
 
-                            TcpSocket send_sock;
-                            send_sock.SendTo(msg, it->second.first, it->second.second);
+                            // TcpSocket send_sock;
+                            it->second.Send(msg);
+                            
 
                             *resp = "Send Success!";
                         }
@@ -68,22 +69,18 @@ int main()
                     //  d) 如果用户退出，就把用户在通讯录上的信息删除掉
                     else if (option == "client_quit")
                     {
-                        std::string name; 
-                        // 先根据用户 ip 在通讯录上找用户信息
-                        for (const auto& e : book)
+                        for (auto& e : book)
                         {
-                            if (e.second.first == ip)
+                            if (&(e.second) == &sock)
                             {
-                                name = e.first;                               
+                                std::cout << "delete" << std::endl;
+                                auto it = book.find(e.first);
+                                book.erase(it);
                                 break;
                             }
                         }
-                        
-                        auto it = book.find(name);
-                        book.erase(it);
                     }
                  }
-                 );
-
+                 ); 
     return 0;
 }

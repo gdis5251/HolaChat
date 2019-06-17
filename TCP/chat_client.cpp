@@ -1,6 +1,9 @@
 #include <pthread.h>
 #include "tcp_client.hpp"
 
+pthread_mutex_t mutex;
+pthread_cond_t cond;
+
 void menu()
 {
     std::cout << "*********************************" << std::endl;
@@ -19,6 +22,7 @@ void* ThreadEntry(void *arg)
         client->Recv(&resp);
 
         std::cout << resp.c_str() << std::endl;
+        pthread_cond_signal(&cond);
     }
 
 
@@ -30,14 +34,21 @@ int main(void)
     TcpClient client;
     client.Connect();
 
+    pthread_mutex_init(&mutex, nullptr);
+    pthread_cond_init(&cond, nullptr);
     // 客户端一启动，就给服务器发送一个自己名字的消息
     // 让服务器记录该用户
-    std::string start = "client_start";
+    std::string start = "client_start ";
+    std::string init_name;
+    std::cout << "请输入用户名-> ";
+    fflush(stdout);
+    std::cin >> init_name;
+    start += init_name;
     client.Send(start);
 
     std::string resp;
     client.Recv(&resp);
-    std::cout << *resp.c_str() << std::endl;
+    std::cout << resp.c_str() << std::endl;
 
     // 创建一个线程用来专门接收消息
     pthread_t tid;
@@ -64,10 +75,14 @@ int main(void)
             std::string req_list("client_list");
             client.Send(req_list);
 
+
+            std::cout << "在线的用户为-> ";
+            fflush(stdout);
+            pthread_cond_wait(&cond, &mutex);
             //    用户通过先选择用户名
             std::string req_msg("client_send ");
             std::cout << "请输入您要聊天的用户名：";
-            fflush(stdout);
+            // fflush(stdout);
             std::string name;
             std::cin >> name;
             req_msg += name;
@@ -75,17 +90,30 @@ int main(void)
 
             // 用getchar接收一下输入名字时输入的回车
             getchar();
-            std::cout << "> " << std::endl;
-            fflush(stdout);
+            std::cout << "< ";
+            // fflush(stdout);
             std::string msg;
             std::getline(std::cin, msg);
+            req_msg += msg;
             
             //    再编译发送内容的方式实现通讯
-
+            client.Send(req_msg);
+            pthread_cond_wait(&cond, &mutex);
         }
         // 3. 如果用户选择退出程序
-        //    就给服务器发送用户选择退出
-        //    服务器删除该用户信息
+        else if (option == 2)
+        {
+            //    就给服务器发送用户选择退出
+            //    服务器删除该用户信息
+            // std::string req_msg("client_quit");
+
+            // client.Send(req_msg);
+            break;
+        }
+        else 
+        {
+            std::cout << "输入出错，请重新输入！" << std::endl;
+        }
     }
 
 
