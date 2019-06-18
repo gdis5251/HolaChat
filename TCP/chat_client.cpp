@@ -105,9 +105,10 @@ int main(void)
         {
             //    就给服务器发送用户选择退出
             //    服务器删除该用户信息
-            // std::string req_msg("client_quit");
+            std::string req_msg("client_quit ");
+            req_msg += init_name;
 
-            // client.Send(req_msg);
+            client.Send(req_msg);
             break;
         }
         else 

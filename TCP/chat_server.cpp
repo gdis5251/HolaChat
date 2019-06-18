@@ -69,11 +69,12 @@ int main()
                     //  d) 如果用户退出，就把用户在通讯录上的信息删除掉
                     else if (option == "client_quit")
                     {
+                        std::string name;
+                        ss >> name;
                         for (auto& e : book)
                         {
-                            if (&(e.second) == &sock)
+                            if (e.first == name)
                             {
-                                std::cout << "delete" << std::endl;
                                 auto it = book.find(e.first);
                                 book.erase(it);
                                 break;
