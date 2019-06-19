@@ -24,7 +24,7 @@ void* RecvMessage(void *argv)
     while (true)
     {
         (*(ThreadArgv*)argv).client_.RecvFrom((*(ThreadArgv*)argv).resp_);
-        std::cout << (*(ThreadArgv*)argv).resp_.c_str() << std::endl;
+        std::cout << "> " << (*(ThreadArgv*)argv).resp_.c_str() << std::endl;
     }
 
     return nullptr;

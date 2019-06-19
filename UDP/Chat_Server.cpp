@@ -6,7 +6,7 @@
 struct AddressList
 {
     // 让姓名成为 key，然后在 value 里存 ip 和 端口号
-    std::map<const std::string, std::pair<const std::string, uint16_t> > book;
+    std::map<const std::string, std::pair<std::string, uint16_t> > book;
 };
 
 
@@ -39,7 +39,7 @@ int main(void)
 	UdpServer server;
 
 	server.start("0", 9090, [&addresslist](const std::string& req, std::string& resp, const std::string& ip, uint16_t port,
-        std::string& send_ip, uint16_t* send_port, int* is_send, std::string& msg_)
+        UdpSocket& send_sock)
 	{
 		// 先判断是否是程序刚启动
 		int pos = req.find(' ');
@@ -80,13 +80,7 @@ int main(void)
 
             if (ans != addresslist.book.end())
             {
-                // 将对方的 ip 和 端口号拿出来
-                send_ip = ans->second.first;
-                *send_port = ans->second.second;
-                *is_send = 1;
-
-                msg_ = message;
-
+                send_sock.SendTo(message, ans->second.first, ans->second.second);
                 resp = "Sended!";
             }
             else
