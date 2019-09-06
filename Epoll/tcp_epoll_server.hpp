@@ -137,7 +137,7 @@ public:
                     // 走到这里说明接收消息成功
                     printf("对端发送了： %s\n", req.c_str());
 
-                    // 2. 线程处理请求
+                    // 2. 处理请求
                     std::string resp;
                     handler(req, &resp, tcp_sock);
 
